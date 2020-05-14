@@ -1,0 +1,31 @@
+{
+  "name": "frontend-project-lvl2",
+  "version": "1.0.0",
+  "description": "second project",
+  "bin": {
+    "gendiff": "bin/gendiff.js"
+  },
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dicibel/frontend-project-lvl2.git"
+  },
+  "author": "Dmitriy Belyaev",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Dicibel/frontend-project-lvl2/issues"
+  },
+  "type": "module",
+  "homepage": "https://github.com/Dicibel/frontend-project-lvl2#readme",
+  "dependencies": {
+    "commander": "^5.1.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.0.0",
+    "eslint-config-airbnb-base": "^14.1.0",
+    "eslint-plugin-import": "^2.20.2"
+  }
+}
