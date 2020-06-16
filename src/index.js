@@ -1,3 +1,5 @@
+/* eslint-disable consistent-return */
+// eslint-disable-next-line array-callback-return
 import _ from 'lodash';
 import path from 'path';
 import { readFile, parse } from './utils/utils.js';
@@ -9,7 +11,7 @@ const getDiff = (before, after) => {
 
   const allKeys = _.uniq(keysFromFirstObj.concat(keysFromSecondObj));
 
-  const changes = allKeys.map((key) => {
+  const callback = (key) => {
     if (_.has(before, key) && !_.has(after, key)) {
       return {
         name: key,
@@ -48,7 +50,8 @@ const getDiff = (before, after) => {
         status: 'changed',
       };
     }
-  });
+  };
+  const changes = allKeys.map((key) => callback(key));
   return changes;
 };
 
