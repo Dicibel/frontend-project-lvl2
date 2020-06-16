@@ -1,29 +1,66 @@
-import fs from 'fs';
+import _ from 'lodash';
+import path from 'path';
+import { readFile, parse } from './utils/utils.js';
+import formatSelection from './formatters/formatSelection.js';
 
-export default (firstPathFile, secondPathFile) => {
-  const firstJsonFile = fs.readFileSync(firstPathFile, 'utf8');
-  const secondJsonFile = fs.readFileSync(secondPathFile, 'utf8');
+const getDiff = (before, after) => {
+  const keysFromFirstObj = Object.keys(before);
+  const keysFromSecondObj = Object.keys(after);
 
-  const objFromFirstJsonFile = JSON.parse(firstJsonFile);
-  const keysFromFirstObj = Object.keys(objFromFirstJsonFile);
+  const allKeys = _.uniq(keysFromFirstObj.concat(keysFromSecondObj));
 
-  const objFromSecondJsonFile = JSON.parse(secondJsonFile);
-  const keysFromSecondObj = Object.keys(objFromSecondJsonFile);
-
-  const allKeysFromObjects = [...new Set(keysFromFirstObj.concat(keysFromSecondObj))];
-
-  const changes = allKeysFromObjects.map((key) => {
-    const valueFromFirstObj = objFromFirstJsonFile[key];
-    const valueFromSecondObj = objFromSecondJsonFile[key];
-    if (valueFromFirstObj === undefined) {
-      return `+ ${key}: ${valueFromSecondObj}`;
-    } else if (valueFromSecondObj === undefined) {
-      return `- ${key}: ${valueFromFirstObj}`;
-    } else if (valueFromFirstObj === valueFromSecondObj) {
-      return `  ${key}: ${valueFromSecondObj}`;
+  const changes = allKeys.map((key) => {
+    if (_.has(before, key) && !_.has(after, key)) {
+      return {
+        name: key,
+        valueBefore: before[key],
+        valueAfter: null,
+        status: 'deleted',
+      };
     }
-    return `- ${key}: ${valueFromFirstObj}\n+ ${key}: ${valueFromSecondObj}`;
+    if (!_.has(before, key) && _.has(after, key)) {
+      return {
+        name: key,
+        valueBefore: null,
+        valueAfter: after[key],
+        status: 'added',
+      };
+    }
+    if (_.has(before, key) && _.has(after, key)) {
+      if (typeof before[key] === 'object' && typeof after[key] === 'object') {
+        return {
+          name: key,
+          children: getDiff(before[key], after[key]),
+        };
+      }
+      if (before[key] === after[key]) {
+        return {
+          name: key,
+          valueBefore: before[key],
+          valueAfter: after[key],
+          status: 'same',
+        };
+      }
+      return {
+        name: key,
+        valueBefore: before[key],
+        valueAfter: after[key],
+        status: 'changed',
+      };
+    }
   });
-  const result  = changes.join('\n');
-  return `{\n${result}\n}`;
+  return changes;
 };
+
+const getDataFormat = (absolutePathToFile) => path.extname(absolutePathToFile).slice(1);
+
+const gendiff = (firstPathToFile, secondPathToFile, format) => {
+  const before = parse(readFile(firstPathToFile), getDataFormat(firstPathToFile));
+  const after = parse(readFile(secondPathToFile), getDataFormat(secondPathToFile));
+
+  const diff = getDiff(before, after);
+  const result = formatSelection(diff, format);
+  return result;
+};
+
+export default gendiff;

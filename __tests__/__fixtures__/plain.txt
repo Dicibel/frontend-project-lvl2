@@ -1,0 +1,13 @@
+Property common.setting1 - not changed
+Property common.setting2 - deleted
+Property common.setting3 - changed from true to [complex value]
+Property common.setting6.key - not changed
+Property common.setting6.ops - added with value: vops
+Property common.follow - added with value: false
+Property common.setting4 - added with value: blah blah
+Property common.setting5 - added with value: [complex value]
+Property group1.baz - changed from bas to bars
+Property group1.foo - not changed
+Property group1.nest - changed from [complex value] to str
+Property group2 - deleted
+Property group3 - added with value: [complex value]
